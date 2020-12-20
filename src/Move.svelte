@@ -8,8 +8,6 @@ export let initIndex;
 
 import { createEventDispatcher, beforeUpdate } from "svelte";
 
-import { tick } from "svelte";
-
 const dispatch = createEventDispatcher();
 
 let xyRef = { x: 0, y: 0 };
@@ -22,8 +20,6 @@ let sign = 0;
 let _top = 0;
 let _containerTop = 0;
 let _containerBottom = 0;
-
-let debounce = true;
 
 const fn = () => {
   console.log("move");
@@ -55,14 +51,15 @@ const pointerup = ({ clientX, client }) => {
   newXY = { x: 0, y: 0 };
   initXY = { x: 0, y: 0 };
 
-  clearInterval(intervalId)
-  intervalId = false
+  clearInterval(intervalId);
+  intervalId = false;
 
   active = false;
   dispatch("end", {});
 };
 
 let _t = 0;
+let vel = 1;
 
 const pointermove = ({ clientX, clientY }) => {
   newXY = {
@@ -72,38 +69,42 @@ const pointermove = ({ clientX, clientY }) => {
 
   let y = xyRef.y - newXY.y;
 
-  //let xin = Math.round(((initIndex * 100) + y) / 100);
-
+  // Design for detecting autoscroll
   let topSensor = _top + y < _containerTop + 20;
   let bottomSensor = _top + y + 100 > _containerBottom - 20;
 
-    //console.log( (_top + y + 100 - (_containerBottom - 20))  / 20);
-    //console.log( (_containerTop + 20 - (_top+ y) ) / 20);
+  // Designed for direction velocity
+  let velocityBottom = Math.max(0, (_top + y + 100 - (_containerBottom - 20)) / 20);
+  let velocityTop = Math.max(0, (_containerTop + 20 - (_top + y)) / 20);
 
-    _t = ( (_top + y + 100) - (_containerBottom - 20) ) / 20;
+  // Designed for detecting direction of movement
+  sign = topSensor ? -1 : bottomSensor ? 1 : 0;
 
-    sign = topSensor ? -1 : bottomSensor ? 1 : 0;
+  // Update velocity
+  vel = sign === -1 ? velocityTop : velocityBottom;
+  vel = vel * 2;
 
-    console.log(topSensor,bottomSensor, sign)
-
+  // If autoscroll
   if (topSensor || bottomSensor) {
-
+    // and if setInterval id is invalid
     if (!intervalId) {
+      // init autoscroll frame
       intervalId = setInterval(() => {
-          container.scrollTop += 2 * sign;
+        container.scrollTop += 2 * vel * sign;
       }, 10);
     }
-
-  } else {
-    console.log('remove event')
+  } else if(intervalId) {
+    // Clear timer when auto scroll is not true
     clearInterval(intervalId);
     intervalId = false;
     sign = 0;
   }
 
-  /*dispatch("update", {
+  const xin = Math.round(( ( initIndex * 100 ) + y ) / 100);
+
+  dispatch("update", {
     newIndex: xin,
-  });*/
+  });
 };
 </script>
 

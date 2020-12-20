@@ -43,6 +43,7 @@ const update = (e) => {
 const end = () => {
   activeIndex = false;
   start = false;
+  initialIndex = 0;
 };
 
 const handleRepaint = debounce(update, 100);
