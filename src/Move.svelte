@@ -5,6 +5,8 @@ export let start;
 export let activeIndex;
 export let container;
 export let initIndex;
+export let activeHeight = 0;
+export let boundMap;
 
 import { createEventDispatcher, beforeUpdate } from "svelte";
 
@@ -21,6 +23,8 @@ let _top = 0;
 let _containerTop = 0;
 let _containerBottom = 0;
 
+let _height = 0;
+
 const fn = () => {
   console.log("move");
 };
@@ -31,14 +35,19 @@ const pointerdown = ({ clientX, clientY, target }) => {
     y: clientY,
   };
 
+
+  _height = target.getBoundingClientRect().height;
+
   dispatch("start", {
-    index,
+      index,
+      height: _height,
   });
 
   _top = target.getBoundingClientRect().y;
   _containerTop = container.getBoundingClientRect().y;
   _containerBottom = container.getBoundingClientRect().bottom;
   active = true;
+
   window.addEventListener("pointermove", pointermove);
 
   window.addEventListener("pointerup", pointerup);
@@ -61,6 +70,10 @@ const pointerup = ({ clientX, client }) => {
 let _t = 0;
 let vel = 1;
 
+
+
+let oldY = 0;
+
 const pointermove = ({ clientX, clientY }) => {
   newXY = {
     x: initXY.x - clientX,
@@ -71,10 +84,10 @@ const pointermove = ({ clientX, clientY }) => {
 
   // Design for detecting autoscroll
   let topSensor = _top + y < _containerTop + 20;
-  let bottomSensor = _top + y + 100 > _containerBottom - 20;
+  let bottomSensor = _top + y + _height > _containerBottom - 20;
 
   // Designed for direction velocity
-  let velocityBottom = Math.max(0, (_top + y + 100 - (_containerBottom - 20)) / 20);
+  let velocityBottom = Math.max(0, (_top + y + _height - (_containerBottom - 20)) / 20);
   let velocityTop = Math.max(0, (_containerTop + 20 - (_top + y)) / 20);
 
   // Designed for detecting direction of movement
@@ -83,6 +96,7 @@ const pointermove = ({ clientX, clientY }) => {
   // Update velocity
   vel = sign === -1 ? velocityTop : velocityBottom;
   vel = vel * 2;
+
 
   // If autoscroll
   if (topSensor || bottomSensor) {
@@ -100,11 +114,86 @@ const pointermove = ({ clientX, clientY }) => {
     sign = 0;
   }
 
-  const xin = Math.round(( ( initIndex * 100 ) + y ) / 100);
+        if (y < oldY) {
+          console.log('top');
+        } else if (y > oldY) {
+          //console.log('bottom');
+        }
 
-  dispatch("update", {
+    let xin = -1;
+
+
+    let s1 = _top + container.scrollTop + y + _height > boundMap[index + 1].bottom - boundMap[index+ 1].height / 2;
+    let s2 = _top + y + container.scrollTop < boundMap[index - 1].bottom - boundMap[index - 1].height / 2;
+
+    console.log(s1, s2);
+
+    if(s1) {
+dispatch("update", {
+        newIndex: index + 1,
+      });
+    } else if(s2) {
+
+dispatch("update", {
+        newIndex: index - 1,
+      });
+    }
+
+    /*if(y > oldY) {
+      if(_top + container.scrollTop + y + _height > boundMap[index + 1].bottom - boundMap[index+ 1].height / 2) {
+        xin = index + 1;
+      }
+    } else if(y < oldY) {
+
+        if(_top + y + container.scrollTop < boundMap[index - 1].bottom - boundMap[index - 1].height / 2) {
+            xin = index - 1;
+        }
+
+    }*/
+
+    if(xin !== -1) {
+      dispatch("update", {
+        newIndex: xin,
+      });
+    }
+
+
+        oldY = y;
+
+    //let xin = -1;
+    /*if(sign === 1) {
+      if(_top + container.scrollTop + y + _height > boundMap[index + 1].bottom - boundMap[index+ 1].height / 2) {
+        xin = index + 1;
+      }
+    } else if(sign === -1) {
+
+    }
+
+    if(xin !== -1) {
+
+dispatch("update", {
     newIndex: xin,
-  });
+  });*/
+
+    //}
+
+/*dispatch("update", {
+    newIndex: xin,
+  });*/
+
+    /*for(var i = index; i < 10;i++) {
+      let f = boundMap[i];
+        if(_top + container.scrollTop + y > f.top) {
+            console.log(i);
+        }
+    }*/
+
+  /*const xin = Math.round((_top + container.scrollTop + y) / 100) - 1;
+*/
+/*  dispatch("update", {
+    newIndex: xin,
+  });*/
+
 };
 </script>
 
@@ -117,8 +206,9 @@ width: 285px;
 ` : ''}
 
 
-{(start && activeIndex !== index ) ? `transform: translateY(${ index > activeIndex ? 100 : 0 }px)` : ''}
+{(start && activeIndex !== index ) ? `transform: translateY(${ index > activeIndex ? activeHeight : 0 }px)` : ''};
 
+height: {value.height}px
 
 ">
 {value.value}
