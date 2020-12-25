@@ -123,21 +123,53 @@ const pointermove = ({ clientX, clientY }) => {
     let xin = -1;
 
 
-    let s1 = _top + container.scrollTop + y + _height > boundMap[index + 1].bottom - boundMap[index+ 1].height / 2;
-    let s2 = _top + y + container.scrollTop < boundMap[index - 1].bottom - boundMap[index - 1].height / 2;
+    //let s1 = _top + container.scrollTop + y + _height > boundMap[index + 1]?.bottom - boundMap[index+ 1]?.height / 2;
+    //let s2 = _top + y + container.scrollTop < boundMap[index - 1]?.bottom - boundMap[index - 1]?.height / 2;
 
-    console.log(s1, s2);
+    //console.log(_top + container.scrollTop + y);
 
-    if(s1) {
-dispatch("update", {
-        newIndex: index + 1,
-      });
-    } else if(s2) {
+    let yy = _top + y + container.scrollTop;
 
+    //console.log(boundMap[index - 1]?.y  - yy, _top - yy, boundMap[index + 1]?.y - yy);
+
+
+    if(boundMap[index - 1]?.y  - yy > 0) {
 dispatch("update", {
         newIndex: index - 1,
       });
+        return
     }
+
+    if(boundMap[index + 1]?.y - yy < 0) {
+
+dispatch("update", {
+        newIndex: index + 1,
+      });
+        return;
+    }
+
+    /*if(Math.abs(boundMap[index - 1]?.y  - yy) > Math.abs(boundMap[index + 1]?.y - yy)) {
+        console.log(index - 1);
+      dispatch("update", {
+        newIndex: index - 1,
+      });
+    } else {
+        console.log(index+1);
+        dispatch("update", {
+        newIndex: index + 1,
+      });
+
+    }*/
+
+    /*if(s1) {
+      dispatch("update", {
+        newIndex: index + 1,
+      });
+    } else if(s2) {
+      dispatch("update", {
+        newIndex: index - 1,
+      });
+    }*/
 
     /*if(y > oldY) {
       if(_top + container.scrollTop + y + _height > boundMap[index + 1].bottom - boundMap[index+ 1].height / 2) {
