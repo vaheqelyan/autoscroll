@@ -116,6 +116,12 @@ const pointermove = ({ clientX, clientY }) => {
     sign = 0;
   }
 
+    if(y < oldY) {
+        dir = 'top'
+    } else if(y > oldY) {
+        dir ='bottom'
+    }
+
     oldY  = y;
 
     /*let xin = -1;
