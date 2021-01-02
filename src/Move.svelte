@@ -73,6 +73,7 @@ let vel = 1;
 
 
 let oldY = 0;
+let dir=''
 
 const pointermove = ({ clientX, clientY }) => {
   newXY = {
@@ -91,7 +92,7 @@ const pointermove = ({ clientX, clientY }) => {
   let velocityTop = Math.max(0, (_containerTop + 20 - (_top + y)) / 20);
 
   // Designed for detecting direction of movement
-  sign = topSensor ? -1 : bottomSensor ? 1 : 0;
+  sign = topSensor && dir === 'top' ? -1 : bottomSensor && dir === 'bottom' ? 1 : 0;
 
   // Update velocity
   vel = sign === -1 ? velocityTop : velocityBottom;
@@ -104,6 +105,7 @@ const pointermove = ({ clientX, clientY }) => {
     if (!intervalId) {
       // init autoscroll frame
       intervalId = setInterval(() => {
+          //console.log(dir === 'top' ? -1 : 1, sign)
         container.scrollTop += 2 * vel * sign;
       }, 10);
     }
@@ -114,23 +116,12 @@ const pointermove = ({ clientX, clientY }) => {
     sign = 0;
   }
 
-        if (y < oldY) {
-          console.log('top');
-        } else if (y > oldY) {
-          //console.log('bottom');
-        }
+    oldY  = y;
 
-    let xin = -1;
+    /*let xin = -1;
 
-
-    //let s1 = _top + container.scrollTop + y + _height > boundMap[index + 1]?.bottom - boundMap[index+ 1]?.height / 2;
-    //let s2 = _top + y + container.scrollTop < boundMap[index - 1]?.bottom - boundMap[index - 1]?.height / 2;
-
-    //console.log(_top + container.scrollTop + y);
 
     let yy = _top + y + container.scrollTop;
-
-    //console.log(boundMap[index - 1]?.y  - yy, _top - yy, boundMap[index + 1]?.y - yy);
 
 
     if(boundMap[index - 1]?.y  - yy > 0) {
@@ -146,86 +137,7 @@ dispatch("update", {
         newIndex: index + 1,
       });
         return;
-    }
-
-    /*if(Math.abs(boundMap[index - 1]?.y  - yy) > Math.abs(boundMap[index + 1]?.y - yy)) {
-        console.log(index - 1);
-      dispatch("update", {
-        newIndex: index - 1,
-      });
-    } else {
-        console.log(index+1);
-        dispatch("update", {
-        newIndex: index + 1,
-      });
-
     }*/
-
-    /*if(s1) {
-      dispatch("update", {
-        newIndex: index + 1,
-      });
-    } else if(s2) {
-      dispatch("update", {
-        newIndex: index - 1,
-      });
-    }*/
-
-    /*if(y > oldY) {
-      if(_top + container.scrollTop + y + _height > boundMap[index + 1].bottom - boundMap[index+ 1].height / 2) {
-        xin = index + 1;
-      }
-    } else if(y < oldY) {
-
-        if(_top + y + container.scrollTop < boundMap[index - 1].bottom - boundMap[index - 1].height / 2) {
-            xin = index - 1;
-        }
-
-    }*/
-
-    if(xin !== -1) {
-      dispatch("update", {
-        newIndex: xin,
-      });
-    }
-
-
-        oldY = y;
-
-    //let xin = -1;
-    /*if(sign === 1) {
-      if(_top + container.scrollTop + y + _height > boundMap[index + 1].bottom - boundMap[index+ 1].height / 2) {
-        xin = index + 1;
-      }
-    } else if(sign === -1) {
-
-    }
-
-    if(xin !== -1) {
-
-dispatch("update", {
-    newIndex: xin,
-  });*/
-
-    //}
-
-/*dispatch("update", {
-    newIndex: xin,
-  });*/
-
-    /*for(var i = index; i < 10;i++) {
-      let f = boundMap[i];
-        if(_top + container.scrollTop + y > f.top) {
-            console.log(i);
-        }
-    }*/
-
-  /*const xin = Math.round((_top + container.scrollTop + y) / 100) - 1;
-*/
-/*  dispatch("update", {
-    newIndex: xin,
-  });*/
-
 };
 </script>
 
